@@ -99,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(color: Colors.black),
               ),
               TextSpan(
-                text: 'Створіть акаунт ! ',
+                text: 'Створіть його ! ',
                 style: const TextStyle(
                   color: Colors.deepOrangeAccent,
                 ),
@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 20),
         if (isLoginTrue)
           const Text(
-            'Username чи Password неправильні. Спробуйте ще раз',
+            'Username чи Пароль неправильні. Спробуйте ще раз',
             style: TextStyle(
               color: Color.fromARGB(255, 245, 72, 72),
               fontSize: 10,

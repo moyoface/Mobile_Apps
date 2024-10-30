@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:my_project/JSON/users.dart';
 import 'package:my_project/SQLite/database_helper.dart';
 import 'package:my_project/Screens/login_Screen.dart';
-import 'package:my_project/Widgets/confirm_button.dart';
+//import 'package:my_project/Widgets/confirm_button.dart';
 import 'package:my_project/Widgets/text_Field_Style.dart';
 import 'package:my_project/Widgets/validations.dart';
 import 'package:my_project/Widgets/welcome_logo.dart';
@@ -23,16 +23,25 @@ class _RegisterState extends State<Register> {
   final password = TextEditingController();
   final confirmPassword = TextEditingController();
   final db = DatabaseHelper();
+
+  bool isRegisterTrue = false;
   dynamic signup() async {
-    var res = await db.createUser(Users(
-        name: name.text,
-        email: email.text,
-        usrName: usrName.text,
-        usrPassword: password.text));
-    if (res > 0) {
-      if (!mounted) return;
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    var result = await db.getUserByUsername(usrName.text);
+    if (result != usrName.text) {
+      var res = await db.createUser(Users(
+          name: name.text,
+          email: email.text,
+          usrName: usrName.text,
+          usrPassword: password.text));
+      if (res > 0) {
+        if (!mounted) return;
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
+      }
+    } else {
+      setState(() {
+        isRegisterTrue = true;
+      });
     }
   }
 
@@ -44,6 +53,7 @@ class _RegisterState extends State<Register> {
   }
 
   Widget content() {
+    Size size = MediaQuery.of(context).size;
     return Form(
       key: _formKey,
       child: Column(
@@ -66,7 +76,7 @@ class _RegisterState extends State<Register> {
             hint: 'Username',
             icon: Icons.account_circle,
             controller: usrName,
-            validator: validateUsername,
+            validator: Validations.validateUsername,
           ),
           TextFieldStyle(
             hint: 'Пароль',
@@ -79,20 +89,35 @@ class _RegisterState extends State<Register> {
             hint: 'Повторіть пароль',
             icon: Icons.lock,
             controller: confirmPassword,
-            validator: Validations.validatePassword,
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Будь ласка, повторіть пароль';
+              }
+              if (value != password.text) {
+                return 'Паролі не збігаються';
+              }
+              return null;
+            },
             passwordInvisible: true,
           ),
           const SizedBox(height: 40),
-          ElevatedButton(
+          Container(
+            height: 50,
+            width: size.width * .45,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            child: TextButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')));
+                  ScaffoldMessenger.of(context).showSnackBar;
+                  signup();
                 }
               },
-              child: const Text('Перевірити дані')),
-          SizedBox(height: 20),
-          ConfirmButton(label: 'Sign Up', press: signup),
+              child: const Text('Зареєстуватися'),
+            ),
+          ),
           const SizedBox(height: 10),
           RichText(
             text: TextSpan(
@@ -110,23 +135,19 @@ class _RegisterState extends State<Register> {
               ],
             ),
           ),
+          SizedBox(height: 10),
+          if (isRegisterTrue)
+            const Text(
+              'Даний username вже використовується. Придумайте інший!',
+              style: TextStyle(
+                color: Color.fromARGB(255, 245, 72, 72),
+                fontSize: 10,
+              ),
+            )
+          else
+            const SizedBox(),
         ],
       ),
     );
-  }
-
-  String? validateUsername(String? value) {
-    print('Succes');
-    if (value == null || value.isEmpty) {
-      return 'Please enter your username';
-    }
-
-    // Username regex pattern (alphanumeric and underscores, 3-16 characters)
-    final RegExp usernameRegex = RegExp(r'^[a-zA-Z0-9_]{3,16}$');
-    if (!usernameRegex.hasMatch(value)) {
-      return 'Username must be 3-16 characters long and contain only letters, numbers, and underscores';
-    }
-
-    return null;
   }
 }

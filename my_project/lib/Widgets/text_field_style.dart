@@ -4,6 +4,7 @@ class TextFieldStyle extends StatelessWidget {
   final String hint;
   final IconData icon;
   final TextEditingController controller;
+  final FormFieldValidator<String> validator;
   final bool passwordInvisible;
   const TextFieldStyle({
     required this.hint,
@@ -11,7 +12,7 @@ class TextFieldStyle extends StatelessWidget {
     required this.controller,
     super.key,
     this.passwordInvisible = false,
-    required validator,
+    required this.validator,
   });
 
   @override
@@ -32,6 +33,7 @@ class TextFieldStyle extends StatelessWidget {
         child: TextFormField(
           obscureText: passwordInvisible,
           controller: controller,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hint,
             icon: Icon(icon),

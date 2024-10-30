@@ -46,4 +46,19 @@ class DatabaseHelper {
         await db.query('users', where: 'usrName = ?', whereArgs: [usrName]);
     return res.isNotEmpty ? Users.fromMap(res.first) : null;
   }
+
+  Future<String?> getUserByUsername(String usrName) async {
+    final Database db = await initDb();
+    final List<Map<String, dynamic>> res = await db.query(
+      'users', // Назва таблиці
+      where: 'usrName = ?', // Умова для пошуку за usrName
+      whereArgs: [usrName], // Параметри для захисту від SQL-ін'єкцій
+      limit: 1, // Обмеження результатів до одного запису
+    );
+
+    if (res.isNotEmpty) {
+      return res.first['usrName'] as String;
+    }
+    return null;
+  }
 }
