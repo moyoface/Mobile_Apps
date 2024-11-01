@@ -92,20 +92,43 @@ class _ProfileState extends State<Profile> {
                 ConfirmButton(
                     label: 'Вийти',
                     press: () {
-                      Provider.of<UIProvider>(context, listen: false)
-                          .clearRememberMe();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WelcomePage(),
-                        ),
-                      );
+                      _showLogoutConfirmationDialog();
                     })
               ],
             ),
           )),
         ),
       ),
+    );
+  }
+
+  void _showLogoutConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Підтвердження'),
+          content: Text('Ви впевнені, що хочете вийти?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Скасувати'),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<UIProvider>(context, listen: false)
+                    .clearRememberMe();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const WelcomePage(),
+                  ),
+                );
+              },
+              child: Text('Так'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
