@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:my_project/JSON/users.dart';
@@ -24,6 +25,11 @@ class _LoginPageState extends State<LoginPage> {
   bool isChecked = false;
   bool isLoginTrue = false;
   final db = DatabaseHelper();
+
+  Future<bool> isConnected() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +81,11 @@ class _LoginPageState extends State<LoginPage> {
             return ConfirmButton(
               label: 'Увійти',
               press: () async {
+                if (!await isConnected()) {
+                  _showNoConnectionDialog();
+                  return;
+                }
+
                 Users? usrDetails = await db.getUser(usrName.text);
                 final res = await db.authenticate(
                     Users(usrName: usrName.text, usrPassword: password.text));
@@ -132,6 +143,22 @@ class _LoginPageState extends State<LoginPage> {
         else
           const SizedBox(),
       ],
+    );
+  }
+
+  void _showNoConnectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Відсутнє підключення'),
+        content: Text('Для входу в систему потрібно з’єднання з інтернетом.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('ОК'),
+          ),
+        ],
+      ),
     );
   }
 }
