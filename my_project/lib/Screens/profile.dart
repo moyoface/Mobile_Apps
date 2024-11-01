@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_project/JSON/users.dart';
+import 'package:my_project/Provider/provider.dart';
 import 'package:my_project/Screens/WelcomeScreen.dart';
 import 'package:my_project/Widgets/confirm_button.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatelessWidget {
   final Users? profile;
@@ -38,7 +40,9 @@ class Profile extends StatelessWidget {
                 ConfirmButton(
                     label: 'Вийти',
                     press: () {
-                      Navigator.push(
+                      Provider.of<UIProvider>(context, listen: false)
+                          .clearRememberMe();
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const WelcomePage(),

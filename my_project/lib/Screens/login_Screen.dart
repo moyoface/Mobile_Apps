@@ -1,12 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:my_project/JSON/users.dart';
+import 'package:my_project/Provider/provider.dart';
 import 'package:my_project/SQLite/database_helper.dart';
 import 'package:my_project/Screens/profile.dart';
 import 'package:my_project/Widgets/confirm_button.dart';
 import 'package:my_project/Widgets/text_field_style.dart';
 import 'package:my_project/Widgets/validations.dart';
 import 'package:my_project/Widgets/welcome_logo.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,22 +24,6 @@ class _LoginPageState extends State<LoginPage> {
   bool isChecked = false;
   bool isLoginTrue = false;
   final db = DatabaseHelper();
-  login() async {
-    Users? usrDetails = await db.getUser(usrName.text);
-    final res = await db
-        .authenticate(Users(usrName: usrName.text, usrPassword: password.text));
-    if (res == true) {
-      if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Profile(profile: usrDetails)),
-      );
-    } else {
-      setState(() {
-        isLoginTrue = true;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,27 +52,50 @@ class _LoginPageState extends State<LoginPage> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: ListTile(
-            horizontalTitleGap: 2,
-            title: const Text(
-              'Запам\'ятати мене',
-              style: TextStyle(fontSize: 14),
-            ),
-            leading: Checkbox(
-              activeColor: Theme.of(context).colorScheme.primaryContainer,
-              value: isChecked,
-              onChanged: (value) {
-                setState(() {
-                  isChecked = !isChecked;
-                });
-              },
-            ),
+          child: Consumer<UIProvider>(
+            builder: (context, UIProvider notifier, child) {
+              return ListTile(
+                horizontalTitleGap: 2,
+                title: const Text(
+                  'Запам\'ятати мене',
+                  style: TextStyle(fontSize: 14),
+                ),
+                leading: Checkbox(
+                  activeColor: Theme.of(context).colorScheme.primaryContainer,
+                  value: notifier.isChecked,
+                  onChanged: (value) => notifier.toggleCheck(),
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(height: 20),
-        ConfirmButton(
-          label: 'Увійти',
-          press: login,
+        Consumer<UIProvider>(
+          builder: (context, UIProvider notifier, child) {
+            return ConfirmButton(
+              label: 'Увійти',
+              press: () async {
+                Users? usrDetails = await db.getUser(usrName.text);
+                final res = await db.authenticate(
+                    Users(usrName: usrName.text, usrPassword: password.text));
+                if (notifier.isChecked == true) {
+                  notifier.setRememberMe(usrName.text);
+                }
+                if (res == true) {
+                  if (!mounted) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Profile(profile: usrDetails)),
+                  );
+                } else {
+                  setState(() {
+                    isLoginTrue = true;
+                  });
+                }
+              },
+            );
+          },
         ),
         const SizedBox(
           height: 10,
