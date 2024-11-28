@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:my_project/JSON/users.dart';
 import 'package:my_project/SQLite/database_helper.dart';
 import 'package:my_project/Screens/login_Screen.dart';
-//import 'package:my_project/Widgets/confirm_button.dart';
 import 'package:my_project/Widgets/text_Field_Style.dart';
 import 'package:my_project/Widgets/validations.dart';
 import 'package:my_project/Widgets/welcome_logo.dart';
