@@ -22,6 +22,13 @@ void main() {
     child: Consumer<UIProvider>(
       builder: (context, UIProvider notifier, child) {
         return MaterialApp(
+          theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color.fromARGB(255, 231, 238, 133)),
+              textTheme: Theme.of(context).textTheme.apply(
+                    fontFamily: 'Montserrat',
+                  )),
           debugShowCheckedModeBanner: false,
           routes: {
             '/': (context) => notifier.rememberMe &&
